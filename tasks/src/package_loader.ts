@@ -65,8 +65,14 @@ export class PackageLoader<G> {
 
     // From webworker.
     if (isWebWorker()) {
-      importScripts(packageUrl);
-      PackageLoader.promises[packageUrl] = Promise.resolve();
+      //Webworkers of type: 'classic'
+      if (!!importScripts) {
+        importScripts(packageUrl);
+        PackageLoader.promises[packageUrl] = Promise.resolve();
+      } else {
+        //Webworkers of type: 'module' are ESM and can't use importScripts()
+        PackageLoader.promises[packageUrl] = import(packageUrl);
+      }
     }
     // From webpage.
     else {
